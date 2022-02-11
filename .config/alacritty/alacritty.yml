@@ -69,7 +69,7 @@ window:
   # The value `0.0` is completely transparent and `1.0` is opaque.
   # background_opacity seems to be deprecated but the only thing working?
   # background_opacity: 0.8
-  opacity: 0.8
+  opacity: 0.6
 
   # Startup Mode (changes require restart)
   #
