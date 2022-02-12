@@ -10,7 +10,7 @@ super + Return
 super + alt + d
 	discord
 
-# program launcher
+# launch rofi with run on by default
 super + @space
 	rofi -show run
 

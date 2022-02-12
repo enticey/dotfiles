@@ -3,6 +3,7 @@
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
+export PATH=/home/entice/.local/bin:$PATH
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -91,16 +92,12 @@ source $ZSH/oh-my-zsh.sh
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-alias zshconfig="vscodium ~/.zshrc"
-alias ohmyzsh="vscodium ~/.oh-my-zsh"
+
+alias zshconfig="nvim ~/.zshrc"
+alias ohmyzsh="nvim ~/.oh-my-zsh"
 alias restart="shutdown -r now"
-alias bspwmrc="vscodium ~/.config/bspwm/bspwmrc"
-alias sxhkdrc="vscodium ~/.config/sxhkd/sxhkdrc"
-alias polyconfig="vscodium ~/.config/polybar/config"
+alias bspwmrc="nvim ~/.config/bspwm/bspwmrc"
+alias sxhkdrc="nvim ~/.config/sxhkd/sxhkdrc"
+alias polyconfig="nvim ~/.config/polybar/config"
 alias findclass="xprop | grep WM_CLASS"
+alias up="uptime -p && uptime -s"
