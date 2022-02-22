@@ -1,8 +1,17 @@
-#
-# wm independent hotkeys
-#
+# screenshot with flameshot
+# TODO: to be scripted with custom backblaze uploader
+Print 
+    flameshot gui
 
-# terminal emulator
+# does nothing but let us know we toggled mute on discord
+super + KP_Subtract
+    notify-send -u "normal" "Discord" "Toggled mute on Discord."
+    
+# neovim shortcut for lazyness
+super + v
+    alacritty -e "nvim"
+
+# terminal, might open tmux with same bind in the future
 super + Return
 	alacritty
 

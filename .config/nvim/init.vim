@@ -1,17 +1,22 @@
-" Initial settings that may be living in their own file eventually.
-syntax enable                       " Enables syntax highlighting
 set showmatch                       " Show matching brackets
 set ignorecase                      " Ignore case sensitivity
-set hlsearch                        " Highlight searchs
-set incsearch                       " Incremental searchs
-set smartindent                     " Makes indenting smart
-set autoindent                      " Good auto indent
-set cindent                         " C indentation
 set number relativenumber           " Line numbers
 set background=dark                 " Tell vim what the background color looks like
-set updatetime=300                  " Faster completion
-set ttyfast                         " Speed up our scrolling
-set mouse=a                         " Sometimes we may want to use mouse on all modes
+set autochdir                       " Set current working directory to the open buffer?
+
+" Make sure all our indentation is setup nicely
+set tabstop=4
+set shiftwidth=4                   
+set expandtab
+set autoindent
+set smarttab
+set smartindent
+
+set noswapfile
+set textwidth=80
+
+" Setting updatetime too low used to cause issues, tbfo.
+set updatetime=100
 
 " Change our plugin directory to something that makes more sense.
 " See: https://github.com/junegunn/vim-plug for plugin manager docs.
@@ -25,18 +30,14 @@ Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-cmdline'
 Plug 'hrsh7th/nvim-cmp'
 
-" For vsnip users.
+" For vsnip users
 Plug 'hrsh7th/cmp-vsnip'
 Plug 'hrsh7th/vim-vsnip'
 
 " Emmet autocomplete
 Plug 'mattn/emmet-vim', { 'for': 'html' }
 
-" Fuzzy finder
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
-
-" Sonokai theme that needs customization later
+" Shusia variant somewhat color-matched
 Plug 'sainnhe/sonokai'
 
 " Pretty status line
@@ -58,13 +59,20 @@ Plug 'alvan/vim-closetag', { 'for': 'html' }
 " CSS coloring
 Plug 'ap/vim-css-color', { 'for': ['css', 'sass', 'scss', 'less'] }
 
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-
+" See: https://github.com/rust-lang/rust.vim
 Plug 'rust-lang/rust.vim'
+
+" Fuzzy finder
+" See: https://github.com/nvim-telescope/telescope.nvim#usage
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
 
 call plug#end()
 
-" Default back to terminal colors if needed
+syntax enable                       " Enables syntax highlighting
+filetype plugin indent on           " More control over indentation, etc
+let g:rustfmt_autosave = 1          " Format our rust code upon buffer save
+
 if has('termguicolors')
   set termguicolors
 endif
@@ -74,24 +82,18 @@ let g:sonokai_style = 'shusia'
 
 colorscheme sonokai
 
-set autochdir
-set expandtab
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
-set noswapfile
-set textwidth=80
-set ai
-set colorcolumn=0
-set updatetime=500
-set wrap
-set ignorecase
-set smartcase
-
 " Blinking cursor
 set guicursor+=n-v-c-i:blinkon5
 
-set completeopt=menu,menuone,noselect
+" Set completeopt to have a better completion experience
+" :help completeopt
+" menuone: popup even when there's only one match
+" noinsert: Do not insert text until a selection is made
+" noselect: Do not select, force user to select one from the menu
+set completeopt=menuone,noinsert,noselect
+
+" Avoid showing extra messages when using completion
+set shortmess+=c
 
 lua <<EOF
   -- Setup nvim-cmp.
@@ -138,13 +140,8 @@ lua <<EOF
     })
   })
 
-  -- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
-  cmp.setup.cmdline('/', {
-    sources = {
-      { name = 'buffer' }
-    }
-  })
 
+  -- Note: Using buffer source for `/` causes issues with / function for searching, tbfo.
   -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
   cmp.setup.cmdline(':', {
     sources = cmp.config.sources({
@@ -155,10 +152,18 @@ lua <<EOF
   })
 
   -- Setup lspconfig.
-  local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
-  require('lspconfig')['pyright'].setup {
-    capabilities = capabilities
+  -- Use a loop to conveniently call 'setup' on multiple servers and
+  -- map buffer local keybindings when the language server attaches
+  local servers = { 'pyright', 'rust_analyzer'}
+  for _, lsp in pairs(servers) do
+    require('lspconfig')[lsp].setup {
+      on_attach = on_attach,
+      flags = {
+        -- This will be the default in neovim 0.7+
+        debounce_text_changes = 150,
+      }
   }
+end
 EOF
 
 " Airline setup
@@ -176,7 +181,6 @@ let g:airline_section_z = airline#section#create(['linenr', 'maxlinenr', 'colnr'
 
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
-"let g:airline#extensions#tabline#buffers_label = '🍀'
 let g:airline#extensions#tabline#show_buffers = 1
 let g:airline#extensions#tabline#buffer_nr_show = 1
 let g:airline#extensions#tabline#buffer_nr_format = '[%s] '
@@ -202,12 +206,6 @@ let g:airline_skip_empty_sections = 0
 
 let g:airline_theme='sonokai'
 
-"" FZF
-let g:fzf_layout = { 'window': { 'width': 1.0, 'height': 0.6, 'yoffset': 1.0 } }
-let g:fzf_preview_window = ['right:50%', 'ctrl-/']
-
-let $FZF_DEFAULT_OPTS="--preview='source-highlight --failsafe --out-format=esc -o STDOUT -i {}' --layout reverse"
-
 " Indent width on web dev languages
 autocmd FileType html setlocal shiftwidth=2 tabstop=2 textwidth=120
 autocmd FileType css setlocal shiftwidth=2 tabstop=2
@@ -222,24 +220,3 @@ autocmd FileType jsx setlocal shiftwidth=2 tabstop=2
 autocmd FileType tsx setlocal shiftwidth=2 tabstop=2
 autocmd FileType vue setlocal shiftwidth=2 tabstop=2
 autocmd FileType angular setlocal shiftwidth=2 tabstop=2
-
-let g:user_emmet_settings = {
-\  'variables': {'lang': 'en'},
-\  'html': {
-\    'default_attributes': {
-\      'option': {'value': v:null},
-\      'textarea': {'id': v:null, 'name': v:null, 'cols': 10, 'rows': 10},
-\    },
-\    'snippets': {
-\      'html:5': "<!DOCTYPE html>\n"
-\              ."<html lang=\"${lang}\">\n"
-\              ."<head>\n"
-\              ."\t<meta charset=\"${charset}\">\n"
-\              ."\t<title></title>\n"
-\              ."\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-\              ."</head>\n"
-\              ."<body>\n\t${child}|\n</body>\n"
-\              ."</html>",
-\    },
-\  },
-\}

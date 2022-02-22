@@ -101,3 +101,12 @@ alias sxhkdrc="nvim ~/.config/sxhkd/sxhkdrc"
 alias polyconfig="nvim ~/.config/polybar/config"
 alias findclass="xprop | grep WM_CLASS"
 alias up="uptime -p && uptime -s"
+alias qu="python ~/random_quote.py"
+# The following lines were added by compinstall
+
+zstyle ':completion:*' completer _complete _ignored
+zstyle :compinstall filename '/home/entice/.zshrc'
+
+autoload -Uz compinit
+compinit
+# End of lines added by compinstall
